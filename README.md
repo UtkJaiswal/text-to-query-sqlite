@@ -4,7 +4,7 @@
 
 - Provide a normal English text prompt.
 
-- Get the desired results from the SQL database as described in the prompt.
+- Get the desired results from the SQLite database as described in the prompt.
 
 - Database used is `sqlite` in the root directory of the folder named `database.sqlite`
 
