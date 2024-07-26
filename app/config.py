@@ -1,8 +1,6 @@
-import os
 import sqlite3
-from dotenv import load_dotenv
+from llama_index.core import Document
 
-load_dotenv()
 
 DATABASE_PATH = 'database.sqlite'
 
@@ -36,6 +34,16 @@ def get_metadata(table_name):
     conn.close()
     return metadata
 
+def textToDocument(table_metadata):
+    documents = []
+
+    for table_name, fields in table_metadata.items():
+        table_info = f"Table name: {table_name}\n"
+        table_info += "\n".join(fields)
+        documents.append(Document(text=table_info))
+
+    return documents
+
 def generate_prompt(user_prompt, table_metadata):
     prompt = "Metadata:\n"
     for table, metadata in table_metadata.items():
@@ -49,6 +57,8 @@ def generate_prompt(user_prompt, table_metadata):
         f"Question: {user_prompt}"
     )
     return prompt
+
+
 
 def execute_sql_query(query):
     conn = get_db_connection()
