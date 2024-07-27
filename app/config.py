@@ -12,13 +12,13 @@ def get_db_connection():
         return conn
     
     except Exception as e:
-        raise RuntimeError(f"Error generating prompt: {e}")
+        raise RuntimeError(f"Error connecting to database: {e}")
 
 
 def get_tables():
+    conn = get_db_connection()
+    cursor = conn.cursor()
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
         cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
         tables = [table[0] for table in cursor.fetchall()]
         return tables
@@ -33,10 +33,11 @@ def get_tables():
 
 def get_metadata(table_name):
 
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
     try:
-        
-        conn = get_db_connection()
-        cursor = conn.cursor()
+
         query = f"PRAGMA table_info({table_name})"
         cursor.execute(query)
         columns = cursor.fetchall()
@@ -92,13 +93,11 @@ def generate_prompt(user_prompt, table_metadata):
 
 def execute_sql_query(query):
 
+    conn = get_db_connection()
+    cursor = conn.cursor()
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
         cursor.execute(query)
         results = cursor.fetchall()
-        cursor.close()
-        conn.close()
         return [dict(row) for row in results]
     
     except Exception as e:
