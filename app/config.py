@@ -75,9 +75,6 @@ def generate_prompt(user_prompt, table_metadata):
 
     try:
         prompt = "Metadata:\n"
-        for table, metadata in table_metadata.items():
-            prompt += f"Table: {table}\n"
-            prompt += f"{' | '.join(metadata)}\n\n"
         prompt += (
             f"You are given the metadata of the tables in the SQLite database with the above metadata.\n"
             f"You need to analyze this and write an SQL query in normal text (not even markdown) to answer the below natural language question. \n"
