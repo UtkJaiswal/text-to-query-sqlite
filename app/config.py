@@ -1,8 +1,9 @@
 import sqlite3
 from llama_index.core import Document
-
+import pickle, os
 
 DATABASE_PATH = 'database.sqlite'
+PICKLE_FILE = 'app_data.pickle'
 
 def get_db_connection():
 
@@ -106,3 +107,27 @@ def execute_sql_query(query):
         if conn:
             conn.close()
 
+
+
+def initialize_app_data():
+    if os.path.exists(PICKLE_FILE):
+        with open(PICKLE_FILE, 'rb') as f:
+            data = pickle.load(f)
+            tables = data['tables']
+            table_metadata = data['table_metadata']
+            documents = data['documents']
+    else:
+        tables = get_tables()
+        table_metadata = {}
+        for table in tables:
+            table_metadata[table] = get_metadata(table)
+        documents = textToDocument(table_metadata)
+        
+        with open(PICKLE_FILE, 'wb') as f:
+            pickle.dump({
+                'tables': tables,
+                'table_metadata': table_metadata,
+                'documents': documents
+            }, f)
+    
+    return tables, table_metadata, documents

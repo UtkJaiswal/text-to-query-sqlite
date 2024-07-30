@@ -1,4 +1,4 @@
-import os
+import os, pickle
 from dotenv import load_dotenv
 from llama_index.llms.gemini import Gemini
 from llama_index.embeddings.gemini import GeminiEmbedding
@@ -8,6 +8,55 @@ from llama_index.core import ServiceContext, Settings, VectorStoreIndex
 load_dotenv()
 
 gemini_api_key = os.getenv('GENAI_API_KEY')
+PICKLE_FILE = "ai_data.pickle"
+
+def initialize_ai_service(documents):
+
+    global llm, embed_model, service_context, index
+
+    if os.path.exists(PICKLE_FILE):
+        with open(PICKLE_FILE, 'rb') as f:
+            data = pickle.load(f)
+            llm = data['llm']
+            embed_model = data['embed_model']
+            service_context = data['service_context']
+            index = data['index']
+
+    else:
+        llm = Gemini(
+            model = f"models/gemini-1.5-flash",
+            api_key = gemini_api_key
+        )
+
+        embed_model = GeminiEmbedding(
+            model_name = f"models/embedding-001",
+            api_key = gemini_api_key
+        )
+
+        Settings.llm = llm
+        Settings.embed_model = embed_model
+        Settings.chunk_size = 1024
+
+        service_context = ServiceContext.from_defaults(
+            llm = llm,
+            embed_model = embed_model
+        )
+
+        index = VectorStoreIndex.from_documents(
+            documents,
+            service_context = service_context
+        )
+
+        with open(PICKLE_FILE, 'wb') as f:
+            pickle.dump({
+                'llm' : llm,
+                'embed_model' : embed_model,
+                'service_context' : service_context,
+                'index' : index
+            },f)
+
+
+        
 
 def generate_sql_query(documents, combined_prompt):
 
@@ -20,36 +69,6 @@ def generate_sql_query(documents, combined_prompt):
 
     try:
 
-        
-        llm = Gemini(
-            model=f"models/gemini-1.5-flash",
-            api_key=gemini_api_key
-        )
-
-        
-        embed_model = GeminiEmbedding(
-            model_name=f"models/embedding-001",
-            api_key=gemini_api_key
-        )
-
-       
-        Settings.llm = llm
-        Settings.embed_model = embed_model
-        ServiceContext.chunk_size = 1024
-
-      
-        service_context = ServiceContext.from_defaults(
-            llm=llm,
-            embed_model=embed_model
-        )
-
-        
-        index = VectorStoreIndex.from_documents(
-            documents,
-            service_context=service_context
-        )
-
-        
         query_engine = index.as_query_engine()
         response = query_engine.query(combined_prompt)
 
