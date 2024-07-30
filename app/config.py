@@ -71,7 +71,7 @@ def textToDocument(table_metadata):
         raise RuntimeError(f"Error converting text to document: {e}")
 
 
-def generate_prompt(user_prompt, table_metadata):
+def generate_prompt(user_prompt):
 
     try:
         prompt = "Metadata:\n"

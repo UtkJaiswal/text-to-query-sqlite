@@ -41,7 +41,7 @@ def generate_and_execute_sql():
         data = request.json
         user_prompt = data['prompt']
 
-        combined_prompt = generate_prompt(user_prompt, table_metadata)
+        combined_prompt = generate_prompt(user_prompt)
         
         sql_query = generate_sql_query(documents, combined_prompt)
         
