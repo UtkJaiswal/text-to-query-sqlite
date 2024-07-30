@@ -7,5 +7,6 @@ def create_app():
 
     with app.app_context():
         from . import routes
+        routes.initialize_app()
 
     return app
